@@ -6,14 +6,16 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;  
 import java.sql.Statement;  
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.jz100.util.Props;
 /**
  * JDBC封装类
  * 
- * @author fish
+ * @author fish, zzy
  */
 public class JDBCUtil {
 
@@ -28,55 +30,79 @@ public class JDBCUtil {
 	private String password;
 	private String prefix = "";
 
+	private boolean isSetVariables = false;
 	private ResultSetMetaData rsmd;
 	private int columnCount;
+	String[] columnNameArray;
 	
-	public ResultSetMetaData getMetaData() {
+	private void setVariables() {
+		setRsmd();
+		setColumnCount();
+		setColumnNameArray();
+	}
+	
+	private void setRsmd() {
 		try {
 			rsmd = rs.getMetaData();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return rsmd;
 	}
 	
-	public int getColumnCount() {
-		getMetaData();
+	private void setColumnCount() {
 		try {
 			columnCount = rsmd.getColumnCount();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return columnCount;
 	}
 	
-	public String[] getColumnNameArray() {
-		int columnCount = getColumnCount();
-		String[] columnNames = new String[columnCount];
+	private void setColumnNameArray() {
+		columnNameArray = new String[columnCount];
 		for (int i = 1; i < columnCount + 1; i++ ) {
 			try {
-				columnNames[i-1] = rsmd.getColumnName(i);
+				columnNameArray[i-1] = rsmd.getColumnName(i);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
-		return columnNames;
 	}
 
-	public Map<String, String> getResultMap() {
-		Map<String, String> ResultMap = new HashMap<String, String>();
-		String[] columnNames = getColumnNameArray();
+	public ResultSetMetaData getRsmd() {
+		return rsmd;
+	}
+
+	public int getColumnCount() {
+		return columnCount;
+	}
+	
+	public String[] getColumnNameArray() {
+		return columnNameArray;
+	}
+	
+	public List<Map<String, String>> returnResultArray() {
+		if(!isSetVariables) {	//如果类还没有set返回记录的meta信息,那么执行seVariables进行set
+			setVariables();
+		}
+		List<Map<String, String>> resultArray = new ArrayList<Map<String, String>>();
 		try {
-			int i=0;
 			while(rs.next()) {
-				ResultMap.put(columnNames[i-1], rs.getString(i));
+				Map<String, String> resultMap = new HashMap<String, String>();
+				for (int i = 1; i < columnCount + 1; i++ ) {
+					resultMap.put(columnNameArray[i-1], rs.getString(i));
+				}
+				resultArray.add(resultMap);
+				
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return ResultMap;
+		return resultArray;
 	}
 	
+	
+
+
 	/**
 	 * 构造函数
 	 */
@@ -153,6 +179,21 @@ public class JDBCUtil {
 		}
 		return rs;
 	}
+	public ResultSet getSingleResult(String sql, boolean flag) {
+		if (sql == null)
+			sql = "";
+		try {
+			stmt = getStmt();
+			rs = stmt.executeQuery(sql);
+			isSetVariables = flag;
+			if(isSetVariables) {
+				setVariables();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rs;
+	}
 
 	/**
 	 * 获取Statement记录集
@@ -185,6 +226,21 @@ public class JDBCUtil {
 		try {
 			stmt = getStmed();
 			rs = stmt.executeQuery(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rs;
+	}
+	public ResultSet getResultSet(String sql, boolean flag) {
+		if (sql == null)
+			sql = "";
+		try {
+			stmt = getStmed();
+			rs = stmt.executeQuery(sql);
+			isSetVariables = flag;
+			if(isSetVariables) {
+				setVariables();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
