@@ -3,8 +3,10 @@ package com.jz100.db;
 import java.sql.Connection;  
 import java.sql.DriverManager;  
 import java.sql.ResultSet;  
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;  
 import java.sql.Statement;  
+import java.util.HashMap;
 import java.util.Map;
 
 import com.jz100.util.Props;
@@ -24,7 +26,57 @@ public class JDBCUtil {
 	private String url;
 	private String username;
 	private String password;
+	private String prefix = "";
 
+	private ResultSetMetaData rsmd;
+	private int columnCount;
+	
+	public ResultSetMetaData getMetaData() {
+		try {
+			rsmd = rs.getMetaData();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rsmd;
+	}
+	
+	public int getColumnCount() {
+		getMetaData();
+		try {
+			columnCount = rsmd.getColumnCount();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return columnCount;
+	}
+	
+	public String[] getColumnNameArray() {
+		int columnCount = getColumnCount();
+		String[] columnNames = new String[columnCount];
+		for (int i = 1; i < columnCount + 1; i++ ) {
+			try {
+				columnNames[i-1] = rsmd.getColumnName(i);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return columnNames;
+	}
+
+	public Map<String, String> getResultMap() {
+		Map<String, String> ResultMap = new HashMap<String, String>();
+		String[] columnNames = getColumnNameArray();
+		try {
+			int i=0;
+			while(rs.next()) {
+				ResultMap.put(columnNames[i-1], rs.getString(i));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ResultMap;
+	}
+	
 	/**
 	 * 构造函数
 	 */
@@ -37,10 +89,23 @@ public class JDBCUtil {
 			url = propMap.get("url");
 			username = propMap.get("username");
 			password = propMap.get("password");
+			if(propMap.containsKey("prefix")) {
+				prefix = propMap.get("prefix");
+			}
+			 
 			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	
+
+	public String getPrefix() {
+		return prefix;
+	}
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 
 	/**
