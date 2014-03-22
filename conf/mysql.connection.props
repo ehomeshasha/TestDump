@@ -1,4 +1,0 @@
-#mysql connections
-url = jdbc:mysql://localhost:3306/jz100wh?useCursorFetch=true&defaultFetchSize=1000
-username = root
-password = zzy8945620
