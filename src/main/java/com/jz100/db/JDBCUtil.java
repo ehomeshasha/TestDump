@@ -118,7 +118,7 @@ public class JDBCUtil {
 			if(propMap.containsKey("prefix")) {
 				prefix = propMap.get("prefix");
 			}
-			 
+			getConn(); 
 			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -132,6 +132,10 @@ public class JDBCUtil {
 	}
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+	
+	public Statement getStmt() {
+		return stmt;
 	}
 
 	/**
@@ -150,9 +154,9 @@ public class JDBCUtil {
 	/**
 	 * 获取Statement记录
 	 */
-	public Statement getStmt() {
+	public Statement createStmt() {
 		try {
-			conn = getConn();
+			//conn = getConn();
 			stmt = conn.createStatement();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -172,7 +176,7 @@ public class JDBCUtil {
 		if (sql == null)
 			sql = "";
 		try {
-			stmt = getStmt();
+			stmt = createStmt();
 			rs = stmt.executeQuery(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -183,7 +187,7 @@ public class JDBCUtil {
 		if (sql == null)
 			sql = "";
 		try {
-			stmt = getStmt();
+			stmt = createStmt();
 			rs = stmt.executeQuery(sql);
 			isSetVariables = flag;
 			if(isSetVariables) {
@@ -198,9 +202,9 @@ public class JDBCUtil {
 	/**
 	 * 获取Statement记录集
 	 */
-	public Statement getStmed() {
+	public Statement createStmed() {
 		try {
-			conn = getConn();
+			//conn = getConn();
 			//stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 			//		ResultSet.CONCUR_UPDATABLE);
 			stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY,
@@ -224,7 +228,7 @@ public class JDBCUtil {
 		if (sql == null)
 			sql = "";
 		try {
-			stmt = getStmed();
+			stmt = createStmed();
 			rs = stmt.executeQuery(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -235,7 +239,7 @@ public class JDBCUtil {
 		if (sql == null)
 			sql = "";
 		try {
-			stmt = getStmed();
+			stmt = createStmed();
 			rs = stmt.executeQuery(sql);
 			isSetVariables = flag;
 			if(isSetVariables) {
@@ -263,7 +267,7 @@ public class JDBCUtil {
 		if (sql == null)
 			sql = "";
 		try {
-			stmt = getStmed();
+			stmt = createStmt();
 			flag = stmt.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -282,7 +286,7 @@ public class JDBCUtil {
 		if (sql == null)
 			sql = "";
 		try {
-			stmt = getStmed();
+			stmt = createStmt();
 			flag = stmt.execute(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -300,7 +304,7 @@ public class JDBCUtil {
 		if (sql == null)
 			sql = "";
 		try {
-			stmt = getStmed();
+			stmt = createStmt();
 			flag = stmt.execute(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -333,5 +337,7 @@ public class JDBCUtil {
 			e.printStackTrace();
 		}
 	}
+
+	
 
 }
